@@ -137,6 +137,7 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('tailwind-scrollbar-hide'),
     require('daisyui'),
+    require('@headlessui/tailwindcss'),
     function ({ addUtilities }) {
       const disconnectButton = {
         '.btn-disconnect-gradient': {

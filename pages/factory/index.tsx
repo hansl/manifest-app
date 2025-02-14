@@ -1,4 +1,4 @@
-import { WalletNotConnected, FactoryIcon, SearchIcon } from '@/components';
+import { WalletNotConnected, FactoryIcon } from '@/components';
 import DenomList from '@/components/factory/components/DenomList';
 import {
   useTokenBalances,
@@ -16,6 +16,7 @@ import env from '@/config/env';
 
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import Link from 'next/link';
+import { PageHeader } from '@/components/layouts/pageHeader';
 
 interface PageSizeConfig {
   denomList: number;
@@ -121,26 +122,12 @@ export default function Factory() {
           ) : (
             <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
               <div className="h-full flex flex-col ">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-                    <h1
-                      className="text-secondary-content"
-                      style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-                    >
-                      Tokens
-                    </h1>
-                    <div className="relative w-full sm:w-[224px]">
-                      <input
-                        type="text"
-                        placeholder="Search for a token ..."
-                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                      />
-                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
+                <PageHeader
+                  title={'Tokens'}
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  searchPlaceHolder="Search for a token..."
+                />
 
                 <div className="flex flex-col w-full mt-4">
                   {isError ? (

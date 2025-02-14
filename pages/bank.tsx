@@ -1,26 +1,23 @@
-import { WalletNotConnected, HistoryBox, SearchIcon } from '@/components';
+import { HistoryBox, IfWalletConnected } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import {
   useGetMessagesFromAddress,
-  useIsMobile,
-  useOsmosisTokenBalancesResolved,
-  useOsmosisTokenFactoryDenomsMetadata,
   useTokenBalances,
-  useTokenBalancesOsmosis,
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-import { useChain, useChains } from '@cosmos-kit/react';
+import { useChain } from '@cosmos-kit/react';
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
+import { MFX_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
 import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import Link from 'next/link';
 import { denomToAsset } from '@/utils';
+import { Tab } from '@headlessui/react';
+import { PageHeader } from '@/components/layouts/pageHeader';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -29,7 +26,7 @@ interface PageSizeConfig {
 }
 
 export default function Bank() {
-  const { isWalletConnected, address } = useChain(env.chain);
+  const { address } = useChain(env.chain);
 
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
   const {
@@ -40,7 +37,6 @@ export default function Bank() {
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState('assets');
 
   const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
     {
@@ -161,99 +157,72 @@ export default function Bank() {
 
       <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
-          {!isWalletConnected ? (
-            <WalletNotConnected
-              description="Use the button below to connect your wallet and start interacting with your tokens."
-              icon={<BankIcon className="h-60 w-60 text-primary" />}
-            />
-          ) : (
+          <IfWalletConnected description="start interacting with your tokens" icon={BankIcon}>
             <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
               <div className="h-full flex flex-col">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-                    <h1
-                      className="text-secondary-content"
-                      style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+                <PageHeader
+                  title="Bank"
+                  searchPlaceHolder="Search for an asset..."
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                />
+
+                <Tab.Group>
+                  <Tab.List className="tabs tabs-bordered tabs-md md:tabs-lg mb-5 flex flex-row">
+                    <Tab
+                      aria-controls="assets-panel"
+                      className={`font-bold tab ui-selected:tab-active`}
                     >
-                      Bank
-                    </h1>
+                      Assets
+                    </Tab>
+                    <Tab
+                      aria-controls="history-panel"
+                      className={`font-bold tab ui-selected:tab-active`}
+                    >
+                      Activity
+                    </Tab>
+                  </Tab.List>
 
-                    <div className="relative w-full sm:w-[224px]">
-                      <input
-                        type="text"
-                        placeholder="Search for an asset ..."
-                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                      />
-                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-                <div
-                  role="tablist"
-                  className="tabs tabs-bordered tabs-lg flex flex-row"
-                  aria-label="Bank sections"
-                >
-                  <button
-                    role="tab"
-                    id="assets-tab"
-                    aria-controls="assets-panel"
-                    aria-selected={activeTab === 'assets'}
-                    className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
-                    onClick={() => setActiveTab('assets')}
-                  >
-                    Assets
-                  </button>
-                  <button
-                    role="tab"
-                    id="history-tab"
-                    aria-controls="history-panel"
-                    aria-selected={activeTab === 'history'}
-                    className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
-                    onClick={() => setActiveTab('history')}
-                  >
-                    Activity
-                  </button>
-                </div>
-
-                <div className="flex flex-col w-full mt-4">
-                  {activeTab === 'assets' &&
-                    (combinedBalances.length === 0 && !isLoading ? (
-                      <NoAssetsFound />
-                    ) : (
-                      <TokenList
-                        refetchBalances={refetchBalances || resolveRefetch}
-                        isLoading={isLoading}
-                        balances={combinedBalances}
-                        refetchHistory={refetchHistory}
-                        address={address ?? ''}
-                        pageSize={tokenListPageSize}
-                        searchTerm={searchTerm}
-                      />
-                    ))}
-                  {activeTab === 'history' &&
-                    (totalPages === 0 ? (
-                      <NoActivityFound />
-                    ) : (
-                      <HistoryBox
-                        currentPage={currentPage}
-                        setCurrentPage={setCurrentPage}
-                        address={address ?? ''}
-                        isLoading={isLoading}
-                        sendTxs={sendTxs}
-                        totalPages={totalPages}
-                        txLoading={txLoading}
-                        isError={isError}
-                        refetch={refetchHistory}
-                        skeletonGroupCount={skeletonGroupCount}
-                        skeletonTxCount={skeletonTxCount}
-                      />
-                    ))}
-                </div>
+                  <Tab.Panels>
+                    <Tab.Panel>
+                      {combinedBalances.length === 0 && !isLoading ? (
+                        <NoAssetsFound />
+                      ) : (
+                        <TokenList
+                          refetchBalances={refetchBalances || resolveRefetch}
+                          isLoading={isLoading}
+                          balances={combinedBalances}
+                          refetchHistory={refetchHistory}
+                          address={address ?? ''}
+                          pageSize={tokenListPageSize}
+                          searchTerm={searchTerm}
+                        />
+                      )}
+                    </Tab.Panel>
+                    <Tab.Panel>
+                      {totalPages === 0 ? (
+                        <NoActivityFound />
+                      ) : (
+                        <HistoryBox
+                          currentPage={currentPage}
+                          setCurrentPage={setCurrentPage}
+                          address={address ?? ''}
+                          isLoading={isLoading}
+                          sendTxs={sendTxs}
+                          totalPages={totalPages}
+                          txLoading={txLoading}
+                          isError={isError}
+                          refetch={refetchHistory}
+                          skeletonGroupCount={skeletonGroupCount}
+                          skeletonTxCount={skeletonTxCount}
+                        />
+                      )}
+                    </Tab.Panel>
+                  </Tab.Panels>
+                </Tab.Group>
               </div>
             </div>
-          )}
+          </IfWalletConnected>
         </div>
       </div>
     </div>

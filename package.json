@@ -42,6 +42,7 @@
     "@cosmos-kit/web3auth": "^2.15.0",
     "@fontsource/manrope": "^5.0.21",
     "@headlessui/react": "^1.7.18",
+    "@headlessui/tailwindcss": "^0.2.2",
     "@heroicons/react": "^2.1.5",
     "@interchain-ui/react": "1.26.1",
     "@liftedinit/manifestjs": "0.0.1-rc.1",

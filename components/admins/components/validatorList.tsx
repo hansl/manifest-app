@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ValidatorDetailsModal } from '../modals/validatorModal';
-import { WarningModal } from '../modals/warningModal';
+import React, { useState, useMemo } from 'react';
+import { WarningModal, ValidatorDetailsModal } from '@/components';
 import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import ProfileAvatar from '@/utils/identicon';
 import Image from 'next/image';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { SearchIcon, TrashIcon } from '@/components/icons';
+import { TrashIcon } from '@/components/icons';
 import useIsMobile from '@/hooks/useIsMobile';
+import { PageHeader } from '@/components/layouts/pageHeader';
 
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;
@@ -83,26 +83,13 @@ export default function ValidatorList({
   return (
     <div className="relative w-full h-full overflow-hidden">
       <div className="h-full flex flex-col p-1">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-            <h1
-              className="text-secondary-content"
-              style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-            >
-              Validators
-            </h1>
-            <div className="relative w-full sm:w-[224px]">
-              <input
-                type="text"
-                placeholder="Search for a validator..."
-                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
-              <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title={'Validators'}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceHolder="Search for a validator..."
+        />
+
         <div
           role="tablist"
           aria-label="Validator status filter"

@@ -1,7 +1,7 @@
-import React, { MouseEventHandler, useEffect, useMemo, useState, useRef } from 'react';
+import React, { MouseEventHandler, useEffect, useMemo, useState, useRef, useContext } from 'react';
 
 import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { ArrowUpIcon, CopyIcon } from './icons';
+import { ArrowUpIcon, BankIcon, CopyIcon } from './icons';
 import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
@@ -295,3 +295,22 @@ export function WalletNotConnected({
     </section>
   );
 }
+
+export const IfWalletConnected: React.FC<{
+  children: React.ReactNode;
+  description?: string;
+  icon: React.FC<any>;
+}> = ({ children, description, icon: Icon }) => {
+  const { isWalletConnected } = useChain(env.chain);
+
+  if (!isWalletConnected) {
+    return (
+      <WalletNotConnected
+        description={`Use the button below to connect your wallet and ${description ?? 'access the application'}.`}
+        icon={<Icon className="h-60 w-60 text-primary" />}
+      />
+    );
+  } else {
+    return <>{children}</>;
+  }
+};

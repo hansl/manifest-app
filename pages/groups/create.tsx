@@ -7,7 +7,7 @@ import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
-import { WalletNotConnected, GroupsIcon } from '@/components';
+import { WalletNotConnected, GroupsIcon, IfWalletConnected } from '@/components';
 import Success from '@/components/groups/forms/groups/Success';
 
 import env from '@/config/env';
@@ -48,12 +48,8 @@ export default function CreateGroup() {
   return (
     <div className="flex flex-col items-center min-h-screen w-full ">
       <SEO title="Create a group - Alberto" />
-      {!isWalletConnected ? (
-        <WalletNotConnected
-          description="Use the button below to connect your wallet and create a group."
-          icon={<GroupsIcon className="h-60 w-60 text-primary" />}
-        />
-      ) : (
+
+      <IfWalletConnected icon={GroupsIcon} description="create a group">
         <div className="w-full justify-between space-y-8 min-h-screen items-center animate-fadeIn mt-4 overflow-hidden">
           {currentStep != 5 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
@@ -104,7 +100,7 @@ export default function CreateGroup() {
             </div>
           )}
         </div>
-      )}
+      </IfWalletConnected>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { WalletNotConnected, GroupsIcon } from '@/components';
+import { WalletNotConnected, GroupsIcon, IfWalletConnected } from '@/components';
 import { YourGroups } from '@/components/groups/components/myGroups';
 import { useChain } from '@cosmos-kit/react';
 import Link from 'next/link';
@@ -24,34 +24,32 @@ export default function Groups() {
   return (
     <div className="min-h-screen relative lg:py-0 py-4 px-2 mx-auto text-white ">
       <SEO title="Groups - Alberto" />
+
       <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
-          {!isWalletConnected ? (
-            <WalletNotConnected
-              description="Use the button below to connect your wallet and start interacting with your groups."
-              icon={<GroupsIcon className="h-60 w-60 text-primary" />}
-            />
-          ) : isLoading ? (
-            <YourGroups
-              groups={groupByMemberData ?? { groups: [] }}
-              proposals={proposalsByPolicyAccount}
-              isLoading={isLoading}
-              refetch={refetchGroupByMember || refetchProposals}
-            />
-          ) : isError ? (
-            <div className="text-center text-error">Error loading groups or proposals</div>
-          ) : groupByMemberData?.groups.length === 0 ? (
-            <NoGroupsFound />
-          ) : (
-            <>
+          <IfWalletConnected icon={GroupsIcon} description="interact with your groups">
+            {isLoading ? (
               <YourGroups
                 groups={groupByMemberData ?? { groups: [] }}
                 proposals={proposalsByPolicyAccount}
                 isLoading={isLoading}
                 refetch={refetchGroupByMember || refetchProposals}
               />
-            </>
-          )}
+            ) : isError ? (
+              <div className="text-center text-error">Error loading groups or proposals</div>
+            ) : groupByMemberData?.groups.length === 0 ? (
+              <NoGroupsFound />
+            ) : (
+              <>
+                <YourGroups
+                  groups={groupByMemberData ?? { groups: [] }}
+                  proposals={proposalsByPolicyAccount}
+                  isLoading={isLoading}
+                  refetch={refetchGroupByMember || refetchProposals}
+                />
+              </>
+            )}
+          </IfWalletConnected>
         </div>
       </div>
     </div>

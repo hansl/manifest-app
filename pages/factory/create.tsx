@@ -4,10 +4,9 @@ import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
 import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
 import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
-import { WalletNotConnected, SEO } from '@/components';
+import { FactoryIcon, IfWalletConnected, SEO } from '@/components';
 import Success from '@/components/factory/forms/Success';
 import CreateDenom from '@/components/factory/forms/CreateDenom';
-import { FactoryIcon } from '@/components/icons';
 import env from '@/config/env';
 import { useRouter } from 'next/router';
 
@@ -65,12 +64,8 @@ export default function CreateToken() {
   return (
     <div className="flex flex-col items-center min-h-screen w-full">
       <SEO title="Create a token - Alberto" />
-      {!isWalletConnected ? (
-        <WalletNotConnected
-          description="Use the button below to connect your wallet and start creating new tokens."
-          icon={<FactoryIcon className="h-60 w-60 text-primary" />}
-        />
-      ) : (
+
+      <IfWalletConnected description="start creating new tokens" icon={FactoryIcon}>
         <div className="w-full justify-between space-y-8 min-h-screen items-center animate-fadeIn mt-4 overflow-hidden">
           {currentStep != 4 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
@@ -106,7 +101,7 @@ export default function CreateToken() {
             </div>
           )}
         </div>
-      )}
+      </IfWalletConnected>
     </div>
   );
 }
