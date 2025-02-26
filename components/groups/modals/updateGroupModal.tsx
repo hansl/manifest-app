@@ -8,14 +8,13 @@ import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import React from 'react';
 
-import { SignModal } from '@/components/react';
-import { duration, group as groupSchema } from '@/schemas';
-import { AddressInput } from '@/components/react/inputs/AddressInput';
-
 import { PlusIcon, TrashIcon } from '@/components/icons';
+import { SignModal } from '@/components/react';
 import { NumberInput, TextArea, TextInput } from '@/components/react/inputs';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { ExtendedGroupType, useFeeEstimation, useTx } from '@/hooks';
+import { duration, group as groupSchema } from '@/schemas';
 import { secondsToHumanReadable } from '@/utils/string';
 import Yup from '@/utils/yupExtensions';
 

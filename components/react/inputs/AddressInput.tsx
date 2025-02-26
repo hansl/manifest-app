@@ -1,9 +1,11 @@
-import { Contacts, TextInput } from '@/components';
+import { useChain } from '@cosmos-kit/react';
+import { Dialog } from '@headlessui/react';
 import React from 'react';
 import { MdContacts } from 'react-icons/md';
+
+import { Contacts, TextInput } from '@/components';
 import { BaseInputProps } from '@/components/react/inputs/BaseInput';
-import { Dialog } from '@headlessui/react';
-import { useChain } from '@cosmos-kit/react';
+
 import env from '../../../config/env';
 
 export interface AddressInputProps extends BaseInputProps {
