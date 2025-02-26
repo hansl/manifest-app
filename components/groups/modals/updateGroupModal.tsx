@@ -6,8 +6,8 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { FieldArray, Form, Formik, useFormikContext } from 'formik';
-import React, { useState } from 'react';
-import { TailwindModal } from '@/components/react/modal';
+import React from 'react';
+
 import { SignModal } from '@/components/react';
 import { duration, group as groupSchema } from '@/schemas';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
@@ -85,9 +85,6 @@ export function UpdateGroupModal({
     cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const threshold = Number(maybeThreshold || 1);
-
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
-  const [activeAuthorIndex, setActiveAuthorIndex] = useState<number | null>(null);
 
   // Initialize voting period state from existing data if available
   const votingPeriod = duration.fromSdk(maybeVotingPeriod ?? { seconds: 0n, nanos: 0 });
@@ -235,12 +232,7 @@ export function UpdateGroupModal({
           }}
           onSubmit={handleConfirm}
           setShowUpdateModal={setShowUpdateModal}
-          address={address}
           isSigning={isSigning}
-          isContactsOpen={isContactsOpen}
-          activeAuthorIndex={activeAuthorIndex}
-          setIsContactsOpen={setIsContactsOpen}
-          setActiveAuthorIndex={setActiveAuthorIndex}
         />
       </div>
 
@@ -252,17 +244,7 @@ export function UpdateGroupModal({
 interface UpdateGroupFormProps {
   initialValues: UpdateFormValues;
   onSubmit: (values: UpdateFormValues) => Promise<void>;
-
-  isContactsOpen: boolean;
-  setIsContactsOpen: React.Dispatch<boolean>;
-
-  activeAuthorIndex: number | null;
-  setActiveAuthorIndex: React.Dispatch<number | null>;
-
   setShowUpdateModal: React.Dispatch<boolean>;
-
-  address: string;
-
   isSigning: boolean;
 }
 
@@ -274,13 +256,8 @@ interface UpdateGroupFormProps {
 export const UpdateGroupForm: React.FC<UpdateGroupFormProps> = ({
   initialValues,
   onSubmit,
-  setIsContactsOpen,
-  setActiveAuthorIndex,
   setShowUpdateModal,
   isSigning,
-  isContactsOpen,
-  address,
-  activeAuthorIndex,
 }) => {
   return (
     <Formik
@@ -292,26 +269,9 @@ export const UpdateGroupForm: React.FC<UpdateGroupFormProps> = ({
       {({ isValid, dirty, setFieldValue, handleSubmit }) => (
         <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-4">
-            <GroupDetailsFormFields
-              setIsContactsOpen={setIsContactsOpen}
-              setActiveAuthorIndex={setActiveAuthorIndex}
-            />
-
+            <GroupDetailsFormFields />
             <GroupPolicyFormFields />
           </div>
-
-          <TailwindModal
-            isOpen={isContactsOpen}
-            setOpen={setIsContactsOpen}
-            showContacts={true}
-            currentAddress={address}
-            onSelect={async (selectedAddress: string) => {
-              if (activeAuthorIndex !== null) {
-                await setFieldValue(`authors.${activeAuthorIndex}`, selectedAddress, true);
-                setActiveAuthorIndex(null);
-              }
-            }}
-          />
 
           <div className="mt-4 gap-6 flex justify-center w-full">
             <button
@@ -384,13 +344,7 @@ function GroupPolicyFormFields() {
   );
 }
 
-function GroupDetailsFormFields({
-  setIsContactsOpen,
-  setActiveAuthorIndex,
-}: {
-  setIsContactsOpen: React.Dispatch<boolean>;
-  setActiveAuthorIndex: React.Dispatch<number | null>;
-}) {
+function GroupDetailsFormFields() {
   const { values, handleChange } = useFormikContext<UpdateFormValues>();
 
   return (
@@ -420,9 +374,23 @@ function GroupDetailsFormFields({
                 <div key={index} className="flex mb-2">
                   <AddressInput
                     onChange={handleChange}
+                    label={index === 0 ? 'Author name or address' : ''}
                     name={`authors.${index}`}
                     value={values.authors[index]}
                     data-testid={`author-${index}`}
+                    rightElement={
+                      values.authors.length > 1 &&
+                      index !== 0 && (
+                        <button
+                          type="button"
+                          onClick={() => arrayHelpers.remove(index)}
+                          className="btn btn-error btn-sm text-white"
+                          data-testid={`remove-author-btn-${index}`}
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
+                      )
+                    }
                   />
                 </div>
               ))}
