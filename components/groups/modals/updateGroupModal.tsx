@@ -7,14 +7,15 @@ import {
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import React, { useState } from 'react';
-import { MdContacts } from 'react-icons/md';
+import { TailwindModal } from '@/components/react/modal';
+import { SignModal } from '@/components/react';
+import { duration, group as groupSchema } from '@/schemas';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 
 import { PlusIcon, TrashIcon } from '@/components/icons';
-import { SignModal, TailwindModal } from '@/components/react';
 import { NumberInput, TextArea, TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
 import { ExtendedGroupType, useFeeEstimation, useTx } from '@/hooks';
-import { duration, group as groupSchema } from '@/schemas';
 import { secondsToHumanReadable } from '@/utils/string';
 import Yup from '@/utils/yupExtensions';
 
@@ -417,35 +418,11 @@ function GroupDetailsFormFields({
             <div className="form-control w-full">
               {values.authors.map((_, index) => (
                 <div key={index} className="flex mb-2">
-                  <TextInput
-                    data-testid={`author-${index}`}
-                    label={index === 0 ? 'Author name or address' : ''}
-                    name={`authors.${index}`}
+                  <AddressInput
                     onChange={handleChange}
-                    rightElement={
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveAuthorIndex(index);
-                            setIsContactsOpen(true);
-                          }}
-                          className="btn btn-primary btn-sm text-white"
-                        >
-                          <MdContacts className="w-5 h-5" />
-                        </button>
-                        {values.authors.length > 1 && index !== 0 && (
-                          <button
-                            type="button"
-                            onClick={() => arrayHelpers.remove(index)}
-                            className="btn btn-error btn-sm text-white"
-                            data-testid={`remove-author-btn-${index}`}
-                          >
-                            <TrashIcon className="w-5 h-5" />
-                          </button>
-                        )}
-                      </div>
-                    }
+                    name={`authors.${index}`}
+                    value={values.authors[index]}
+                    data-testid={`author-${index}`}
                   />
                 </div>
               ))}
