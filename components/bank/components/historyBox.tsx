@@ -148,9 +148,7 @@ export function HistoryBox({
                             Incl.:{' '}
                             {tx.fee && (
                               <>
-                                {formatLargeNumber(
-                                  Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))
-                                )}{' '}
+                                {formatLargeNumber(tx.fee.amount?.[0]?.amount, 6)}{' '}
                                 {formatDenomWithBadge(tx.fee.amount?.[0]?.denom, true)} fee
                               </>
                             )}

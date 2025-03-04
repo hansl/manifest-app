@@ -1,4 +1,5 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import BigNumber from 'bignumber.js';
 
 import { TokenBase } from '@/utils/tokens';
 
@@ -37,3 +38,5 @@ export type Contact = {
   name: string;
   address: string;
 };
+
+export type TokenAmount = BigNumber;

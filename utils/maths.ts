@@ -1,19 +1,12 @@
 import BigNumber from 'bignumber.js';
 
-export const isGreaterThanZero = (val: number | string | undefined) => {
-  return new BigNumber(val || 0).gt(0);
-};
+import { TokenAmount } from '@/utils/types';
 
 export const shiftDigits = (
-  num: string | number,
+  num: TokenAmount,
   places: number,
   decimalPlaces?: number
-): string => {
-  if (num === '' || num === null || num === undefined || Number.isNaN(Number(num))) {
-    console.warn(`Invalid number passed to shiftDigits: ${num}`);
-    return '0';
-  }
-
+): TokenAmount => {
   try {
     const result = new BigNumber(num)
       .shiftedBy(places)
@@ -44,10 +37,6 @@ export const parseNumberToBigInt = (v: string, maxDigits: number = 6) => {
   const b = new BigNumber(roundedAmount).times(precision).toFixed(0);
 
   return BigInt(b);
-};
-
-export const toNumber = (val: string, decimals: number = 6) => {
-  return new BigNumber(val).decimalPlaces(decimals).toNumber();
 };
 
 export const calculateIsUnsafe = (
