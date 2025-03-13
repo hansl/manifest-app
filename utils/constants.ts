@@ -1,6 +1,7 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 
-import { ExtendedMetadataSDKType } from './types';
+export const POA_ADMIN_GROUP_ADDR =
+  'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj';
 
 export const MFX_TOKEN_DATA: MetadataSDKType = {
   description: 'The native token of the Manifest Chain',

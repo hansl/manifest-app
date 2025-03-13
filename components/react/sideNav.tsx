@@ -3,9 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { MdContacts } from 'react-icons/md';
 
-import { ContactsModal } from '@/components';
 import {
   AdminsIcon,
   BankIcon,
@@ -15,11 +13,12 @@ import {
   LightIcon,
   QuestionIcon,
 } from '@/components/icons';
+import { ContactButton } from '@/components/react/ContactButton';
 import env from '@/config/env';
 import { useTheme } from '@/contexts';
 import { useGroupsByAdmin } from '@/hooks';
 import { usePoaGetAdmin } from '@/hooks';
-import { getRealLogo } from '@/utils';
+import { POA_ADMIN_GROUP_ADDR, getRealLogo } from '@/utils';
 
 import packageInfo from '../../package.json';
 import { IconWallet, WalletSection } from '../wallet';
@@ -29,77 +28,103 @@ interface SideNavProps {
   setDrawerVisible: (visible: boolean) => void;
 }
 
-export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavProps) {
-  const { toggleTheme, theme } = useTheme();
-  const [isContactsOpen, setContactsOpen] = useState(false);
-  const { address } = useChain(env.chain);
+interface NavItemProps {
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  href: string;
+  tooltip: string;
+  label: string;
+  active?: boolean;
+  iconOnly?: boolean;
+}
 
-  const { poaAdmin } = usePoaGetAdmin();
-
-  const { groupByAdmin } = useGroupsByAdmin(
-    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-  );
-
-  const group = groupByAdmin?.groups?.[0];
-
-  const isMember = group?.members?.some(member => member?.member?.address === address);
-
-  const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
-  const version = packageInfo.version;
-  const NavItem: React.FC<{
-    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    href: string;
-    tooltip?: string;
-  }> = ({ Icon, href, tooltip }) => {
-    const { pathname } = useRouter();
-    const isActive = pathname === href;
-
-    return (
-      <li
-        className="relative w-full flex justify-center mb-5 tooltip tooltip-primary tooltip-bottom hover:after:delay-1000 hover:before:delay-1000"
-        data-tip={tooltip}
-      >
-        <Link href={href} passHref legacyBehavior>
-          <a
-            className={`group active:scale-95 hover:ring-2  hover:ring-primary flex justify-center p-3 items-center rounded-lg transition-all duration-300 ease-in-out w-18
-            ${isActive ? 'text-white bg-primary' : 'text-gray-500 hover:text-primary'}`}
-          >
-            <div
-              className={`w-8 h-8 duration-300  ${isActive ? 'text-white bg-primary' : 'text-[#00000066] dark:text-[#FFFFFF66] group-hover:text-primary'}`}
-            >
-              <Icon className="w-full h-full " />
-            </div>
-          </a>
-        </Link>
-      </li>
-    );
-  };
-
-  const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-32 bg-[#FFFFFF3D] dark:bg-[#FFFFFF0F] flex flex-col items-center h-full transition-transform duration-300 ease-in-out">
-      <Link href={'/#'} passHref legacyBehavior>
-        <a href="#" className="mb-12">
-          <Image src={'/logo.svg'} className="h-16 w-16" alt="Logo" height={264} width={264} />
-        </a>
-      </Link>
-      <ul className="flex flex-col items-center grow mt-8">
-        <NavItem Icon={BankIcon} href="/bank" tooltip="Bank" />
-        <NavItem Icon={GroupsIcon} href="/groups" tooltip="Groups" />
-        {isMember && <NavItem Icon={AdminsIcon} href="/admins" tooltip="Admin" />}
-        <NavItem Icon={FactoryIcon} href="/factory" tooltip="Token Factory" />
-      </ul>
-      <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
-        <div
-          className="tooltip tooltip-primary tooltip-top hover:after:delay-700 hover:before:delay-700"
-          data-tip="Contacts"
+const NavItem = ({ icon: Icon, href, active, tooltip, label, iconOnly }: NavItemProps) => {
+  return (
+    <li
+      className="w-full mb-5 group tooltip tooltip-primary tooltip-bottom hover:after:delay-1000 hover:before:delay-1000"
+      data-tip={tooltip}
+    >
+      {iconOnly ? (
+        <Link
+          href={href}
+          className={`group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-3 items-center rounded-lg transition-all duration-300 ease-in-out w-18
+        flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out
+            ${active ? 'text-white bg-primary' : 'text-[#00000066] dark:text-[#FFFFFF66]  hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 text-gray-500 hover:text-primary'}`}
         >
-          <button
-            onClick={() => setContactsOpen(true)}
-            className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out cursor-pointer"
-          >
-            <MdContacts className="w-8 h-8" />
-          </button>
-        </div>
+          <Icon className="w-8 h-8 duration-300" />
+        </Link>
+      ) : (
+        <Link
+          href={href}
+          className={`flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out ${
+            active
+              ? 'bg-primary text-white'
+              : 'text-[#00000066] dark:text-[#FFFFFF66]  hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300'
+          }`}
+        >
+          <Icon className="w-8 h-8 mr-6" />
+          <span className="text-xl">{label}</span>
+        </Link>
+      )}
+    </li>
+  );
+};
+
+const NavMfxLogo = ({ size, className }: { size: number; className?: string }) => {
+  return (
+    <Link href={'/#'} className={className}>
+      <Image src="/logo.svg" alt="Logo" className="aspect-1" height={size} width={size} priority />
+    </Link>
+  );
+};
+
+const NavList = ({
+  isMember,
+  iconOnly = false,
+  className,
+}: {
+  isMember: boolean;
+  iconOnly?: boolean;
+  className?: string;
+}) => {
+  const { pathname } = useRouter();
+  const links = [
+    [BankIcon, '/bank', 'Bank', 'Manage your assets'],
+    [GroupsIcon, '/groups', 'Groups', 'Create and manage groups'],
+    ...(isMember ? [[AdminsIcon, '/admins', 'Admin', 'Manage the network']] : []),
+    [FactoryIcon, '/factory', 'Token Factory', 'Create and manage tokens'],
+  ] as Array<[React.ComponentType<React.SVGProps<SVGSVGElement>>, string, string, string]>;
+
+  return (
+    <ul className={className}>
+      {links.map(([Icon, href, label, tooltip]) => (
+        <NavItem
+          key={href}
+          icon={Icon}
+          href={href}
+          active={pathname === href}
+          tooltip={tooltip}
+          label={label}
+          iconOnly={iconOnly}
+        />
+      ))}
+    </ul>
+  );
+};
+
+const CollapsedDrawer = ({ isMember }: { isMember: boolean }) => {
+  const { toggleTheme, theme } = useTheme();
+
+  return (
+    <div className="overflow-y-auto z-30 py-5 px-3 w-32 bg-[#FFFFFF3D] dark:bg-[#FFFFFF0F] flex flex-col items-center h-full">
+      <NavMfxLogo size={64} className="mb-12" />
+
+      <NavList isMember={isMember} iconOnly className="flex flex-col items-center grow mt-8" />
+      <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
+        <ContactButton
+          editMode
+          tooltip="Contacts"
+          className="text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary transition duration-300 ease-in-out "
+        />
         <div
           className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
           data-tip="Wallet"
@@ -134,43 +159,27 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       </div>
     </div>
   );
+};
 
-  const NavDrawer: React.FC<{
-    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    href: string;
-    label: string;
-    tooltip?: string;
-  }> = ({ Icon, href, label, tooltip }) => {
-    const { pathname } = useRouter();
-    const isActive = pathname === href;
+export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavProps) {
+  const { toggleTheme, theme } = useTheme();
+  const { address } = useChain(env.chain);
 
-    return (
-      <li
-        className="w-full mb-5 group tooltip tooltip-primary tooltip-bottom hover:after:delay-1000 hover:before:delay-1000"
-        data-tip={tooltip}
-      >
-        <Link href={href} legacyBehavior>
-          <a
-            className={`flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out ${
-              isActive
-                ? 'bg-primary text-white'
-                : 'text-[#00000066] dark:text-[#FFFFFF66]  hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300'
-            }`}
-          >
-            <Icon className="w-8 h-8 mr-6" />
-            <span className="text-xl">{label}</span>
-          </a>
-        </Link>
-      </li>
-    );
-  };
+  const { poaAdmin } = usePoaGetAdmin();
+  const { groupByAdmin } = useGroupsByAdmin(poaAdmin ?? POA_ADMIN_GROUP_ADDR);
+
+  const group = groupByAdmin?.groups?.[0];
+
+  const isMember = group?.members?.some(member => member?.member?.address === address);
+
+  const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
+  const version = packageInfo.version;
 
   const SideDrawer: React.FC = () => (
     <div className="overflow-y-auto flex flex-col h-full bg-[#F4F4FF] dark:bg-[#1D192D]  w-64 p-4">
       <div className="flex flex-row gap-2 justify-start ml-2 mt-2 items-center mb-12 space-x-2">
-        <Link href={'/#'} passHref legacyBehavior>
-          <Image src={'/logo.svg'} alt="logo" width={48} height={48} className="cursor-pointer" />
-        </Link>
+        <NavMfxLogo size={48} />
+
         <div className="flex flex-col">
           <p className="text-4xl font-bold">Alberto</p>
           {env.chainTier === 'mainnet' ? null : (
@@ -178,38 +187,16 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           )}
         </div>
       </div>
-      <ul className="grow mt-8 p-1">
-        <NavDrawer Icon={BankIcon} href="/bank" label="Bank" tooltip="Manage your assets" />
-        <NavDrawer
-          Icon={GroupsIcon}
-          href="/groups"
-          label="Groups"
-          tooltip="Create and manage groups"
-        />
-        {isMember && (
-          <NavDrawer Icon={AdminsIcon} href="/admins" label="Admins" tooltip="Manage the network" />
-        )}
-        <NavDrawer
-          Icon={FactoryIcon}
-          href="/factory"
-          label="Factory"
-          tooltip="Create and manage tokens"
-        />
-      </ul>
+
+      <NavList isMember={isMember} className="grow mt-8 p-1" />
+
       <div className="mt-auto w-full">
-        <div
-          className="w-full tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
-          data-tip="Manage your contacts"
-        >
-          <div className="w-full flex flex-col space-y-2 mb-4">
-            <button
-              onClick={() => setContactsOpen(true)}
-              className="flex w-full items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out cursor-pointer"
-            >
-              <MdContacts className="w-8 h-8 mr-6" />
-              <span className="text-xl">Contacts</span>
-            </button>
-          </div>
+        <div className="mb-4">
+          <ContactButton
+            className="w-full text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
+            label
+            editMode
+          />
         </div>
 
         <div className="flex items-center justify-between mb-2">
@@ -305,7 +292,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         className="fixed top-0 left-0 h-full z-30 hidden lg:flex transition-all duration-300 ease-in-out"
         aria-label="Sidebar"
       >
-        <SideNav />
+        <CollapsedDrawer isMember={isMember} />
       </aside>
       <aside
         id="sidebar-double"
@@ -316,6 +303,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       >
         <SideDrawer />
       </aside>
+
       <button
         onClick={toggleDrawer}
         className={`fixed top-1/2 transform -translate-y-1/2 z-50 hidden lg:block opacity-100 p-2 text-white rounded-full bg-[#C1C1CB] dark:bg-[#444151] hover:bg-primary dark:hover:bg-primary transition-all duration-500 ease-in-out ${
@@ -337,12 +325,6 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           ></path>
         </svg>
       </button>
-
-      <ContactsModal
-        open={isContactsOpen}
-        onClose={() => setContactsOpen(false)}
-        selectionMode={false}
-      />
     </>
   );
 }

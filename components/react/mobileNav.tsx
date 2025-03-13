@@ -20,6 +20,7 @@ import env from '@/config/env';
 import { useTheme } from '@/contexts';
 import { usePoaGetAdmin } from '@/hooks';
 import { useGroupsByAdmin } from '@/hooks';
+import { POA_ADMIN_GROUP_ADDR } from '@/utils';
 
 import { WalletSection } from '../wallet';
 
@@ -28,9 +29,7 @@ export default function MobileNav() {
 
   const { poaAdmin } = usePoaGetAdmin();
 
-  const { groupByAdmin } = useGroupsByAdmin(
-    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-  );
+  const { groupByAdmin } = useGroupsByAdmin(poaAdmin ?? POA_ADMIN_GROUP_ADDR);
 
   const group = groupByAdmin?.groups?.[0];
 

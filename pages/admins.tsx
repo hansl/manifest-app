@@ -11,6 +11,7 @@ import ValidatorList from '@/components/admins/components/validatorList';
 import { AdminsIcon } from '@/components/icons';
 import env from '@/config/env';
 import { useGroupsByAdmin, usePendingValidators, usePoaGetAdmin, useValidators } from '@/hooks';
+import { POA_ADMIN_GROUP_ADDR } from '@/utils';
 
 export default function Admins() {
   const { address, isWalletConnected } = useChain(env.chain);
@@ -19,7 +20,7 @@ export default function Admins() {
   const { validators, isActiveValidatorsLoading } = useValidators();
 
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
-    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+    poaAdmin ?? POA_ADMIN_GROUP_ADDR
   );
 
   const group = groupByAdmin?.groups?.[0];
@@ -69,26 +70,14 @@ export default function Admins() {
                   isLoading={isActiveValidatorsLoading || isPendingValidatorsLoading}
                   activeValidators={validators ?? ([] as ValidatorSDKType[])}
                   pendingValidators={pendingValidators ?? ([] as ValidatorSDKType[])}
-                  admin={
-                    poaAdmin ??
-                    'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-                  }
+                  admin={poaAdmin ?? POA_ADMIN_GROUP_ADDR}
                 />
                 <div className="w-full h-full justify-between items-center flex flex-col md:flex-row mt-4  gap-4">
                   <StakeHolderPayout
-                    admin={
-                      poaAdmin ??
-                      'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-                    }
+                    admin={poaAdmin ?? POA_ADMIN_GROUP_ADDR}
                     address={address ?? ''}
                   />
-                  <ChainUpgrader
-                    address={address ?? ''}
-                    admin={
-                      poaAdmin ??
-                      'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-                    }
-                  />
+                  <ChainUpgrader address={address ?? ''} admin={poaAdmin ?? POA_ADMIN_GROUP_ADDR} />
                 </div>
               </>
             )
